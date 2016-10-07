@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Paginate Demo</title>
+    <link rel="stylesheet" type="text/css" href="./bootstrap.min.css" />
+    <style type="text/css">
+        body {font: 14px/28px "Microsoft Yahei","Tahoma","SimSun";}
+    </style>
+</head>
+<body>
+<div class="container" id="example">
+    <div class="row">
+        <h1 class="col-md-12"><p>演示</p></h1>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="panel panel-default">
+                <div class="panel-heading">外观</div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label for="side" class="control-label">side</label>
+                        <input id="side" class="form-control" type="text" v-model="side" />
+                    </div>
+                    <div class="form-group">
+                        <label for="center-side" class="control-label">center-side</label>
+                        <input id="center-side" class="form-control" type="text" v-model="centerSide" />
+                    </div>
+                    <div class="form-group">
+                        <label for="prev-text" class="control-label">prev-text</label>
+                        <input id="prev-text" class="form-control" type="text" v-model="prevText" />
+                    </div>
+                    <div class="form-group">
+                        <label for="next-text" class="control-label">next-text</label>
+                        <input id="next-text" class="form-control" type="text" v-model="nextText" />
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">控制</div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label for="current-page" class="control-label">current-page</label>
+                        <input id="current-page" class="form-control" type="text" v-model="currentPage" disabled />
+                    </div>
+                    <div class="form-group">
+                        <label for="last-page" class="control-label">last-page</label>
+                        <input id="last-page" class="form-control" type="text" v-model="lastPage" />
+                    </div>
+                    <div class="form-group">
+                        <label for="page-name" class="control-label">page-name</label>
+                        <input id="page-name" class="form-control" type="text" v-model="pageName" />
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">url-sync</label>
+                        <div>
+                            <label for="url-sync-ture" class="control-label"><input id="url-sync-ture" type="radio" value="1" v-model="urlSync" checked /> true</label>
+                            <label for="url-sync-false" class="control-label col-md-offset-1"><input id="url-sync-false" type="radio" value="0" v-model="urlSync" /> false</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="panel panel-default">
+                <div class="panel-heading">参数说明</div>
+                <div class="panel-body">
+                    <dl class="dl-horizontal">
+                        <dt>side</dt>
+                        <dd>边缘数量</dd>
+                        <dt>center-side</dt>
+                        <dd>中央显示区域边缘数量</dd>
+                        <dt>prev-text</dt>
+                        <dd>上一页文字显示</dd>
+                        <dt>next-text</dt>
+                        <dd>下一页文字显示</dd>
+                        <dt>current-page</dt>
+                        <dd>当前页</dd>
+                        <dt>last-page</dt>
+                        <dd>总页数</dd>
+                        <dt>page-name</dt>
+                        <dd>URL 中页号变量名</dd>
+                        <dt>url-sync</dt>
+                        <dd>是否开启 URL 翻页同步更新</dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">图示</div>
+                <div class="panel-body">
+                    <img src="./1.png" class="img-responsive" />
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">范例</div>
+                <div class="panel-body">
+                    <paginate
+                        :center-side="parseInt(centerSide)"
+                        :side="parseInt(side)"
+                        :last-page="parseInt(lastPage)"
+                        :current-page="parseInt(currentPage)"
+                        :page-name="pageName"
+                        :prev-text="prevText"
+                        :next-text="nextText"
+                        :url-sync="parseInt(urlSync)"
+                        @turn="turn"
+                    ></paginate>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="./vue.min.js"></script>
+<script type="text/javascript" src="./paginate.js"></script>
+<script type="text/javascript">
+var vm = new Vue({
+    el: '#example',
+    components: {
+        paginate
+    },
+    data: {
+        side: 1,
+        centerSide: 4,
+        lastPage: 20,
+        currentPage: 10,
+        pageName: 'page',
+        prevText: '«',
+        nextText: '»',
+        urlSync: 1,
+    },
+    methods: {
+        turn: function (page) {
+            this.currentPage = page;
+        }
+    }
+});
+</script>
+</body>
+</html>
