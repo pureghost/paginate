@@ -28,25 +28,27 @@ var paginate = Vue.extend({
 </ul>',
     methods: {
         turn: function (page) {
-            var urlVars = $.getUrlVars(),
-                url = location.href,
-                state = {'page': page};
-            if (!this.popStateListening) {
-                var that = this;
-                this.popStateListening = true;
-                window.addEventListener("popstate", function() {
-                    that.$emit('turn', history.state.page);
-                });
-            }
-            if (history.state == null) {
-                history.replaceState({'page': this.currentPage}, '', location.href);
-            }
-            if (urlVars.length == 0) {
-                history.pushState(state, '', url + '?' + this.pageName + '=' + page);
-            } else if (urlVars[this.pageName]) {
-                history.pushState(state, '', url.replace(/(page=)\d+/, '$1' + page));
-            } else {
-                history.pushState(state, '', url + '&page=' + page);
+            if(this.urlSync) {
+                var url = window.location.href,
+                    params = this.queryParams(url),
+                    state = {'page': page};
+                if (!this.popStateListening) {
+                    var that = this;
+                    this.popStateListening = true;
+                    window.addEventListener("popstate", function() {
+                        that.$emit('turn', window.history.state.page);
+                    });
+                }
+                if (!window.history.state) {
+                    window.history.replaceState({'page': this.currentPage}, '', url);
+                }
+                if (!params.length) {
+                    window.history.pushState(state, '', url + '?' + this.pageName + '=' + page);
+                } else if (params[this.pageName]) {
+                    window.history.pushState(state, '', url.replace(new RegExp('(' + this.pageName + '=)\\d+'), '$1' + page));
+                } else {
+                    window.history.pushState(state, '', url + '&' + this.pageName + '=' + page);
+                }
             }
             this.$emit('turn', page);
         },
@@ -58,16 +60,30 @@ var paginate = Vue.extend({
         },
         isActive: function (n) {
             return this.currentPage == n;
+        },
+        queryParams: function(url) {
+            var vars = [], hash, index = url.indexOf('?');
+            if(index < 0) {
+                return [];
+            } else {
+                var hashes = url.slice(index + 1).split('&');
+                for (var i = 0; i < hashes.length; i++) {
+                    hash = hashes[i].split('=');
+                    vars.push(hash[0]);
+                    vars[hash[0]] = hash[1];
+                }
+                return vars;
+            }
         }
     },
     props: {
-        centerSideCount: {
+        side: {
             type: Number,
-            default: 3
+            default: 1
         },
-        sideCount: {
+        centerSide: {
             type: Number,
-            default: 2
+            default: 4
         },
         lastPage: {
             type: Number,
@@ -88,43 +104,47 @@ var paginate = Vue.extend({
         nextText: {
             type: String,
             default: '»'
+        },
+        urlSync: {
+            type: Boolean,
+            default: true
         }
     },
     computed: {
         showCount: function () {
-            return Math.min(this.lastPage, (this.centerSideCount + this.sideCount) * 2 + 1);
+            return Math.min(this.lastPage, (this.centerSide + this.side) * 2 + 1);
         },
         halfCenterCount: function () {
-            return parseInt((this.showCount - this.sideCount * 2) / 2);
+            return parseInt((this.showCount - this.side * 2) / 2);
         },
         headEnd: function () {
-            return Math.min(this.lastPage, this.sideCount);
+            return Math.min(this.lastPage, this.side);
         },
         tailShowCount: function () {
-            return Math.min(this.sideCount, Math.max(this.lastPage - this.sideCount, 0));
+            return Math.min(this.side, Math.max(this.lastPage - this.side, 0));
         },
         tailOffset: function () {
             return this.lastPage - this.tailShowCount;
         },
         headEllipsis: function () {
-            return this.lastPage > this.showCount && this.currentPage > this.sideCount + this.halfCenterCount + 1;
+            return this.lastPage > this.showCount && this.currentPage > this.side + this.halfCenterCount + 1;
         },
         tailEllipsis: function () {
-            return this.lastPage > this.showCount && this.currentPage < this.lastPage - this.halfCenterCount - this.sideCount;
+            return this.lastPage > this.showCount && this.currentPage < this.lastPage - this.halfCenterCount - this.side;
         },
         centerCount: function () {
-            return this.lastPage > this.sideCount * 2
+            return this.lastPage > this.side * 2
                 ? this.lastPage <= this.showCount
-                    ? this.lastPage - this.sideCount * 2
-                    : this.showCount - this.sideCount * 2
+                    ? this.lastPage - this.side * 2
+                    : this.showCount - this.side * 2
                 : 0;
         },
         centerOffset: function () {
             return !this.tailEllipsis
-                ? this.lastPage - this.showCount + this.sideCount
+                ? this.lastPage - this.showCount + this.side
                 : this.headEllipsis
                     ? this.currentPage - this.halfCenterCount - 1
-                    : this.sideCount;
+                    : this.side;
         },
         activePrev: function () {
             return this.currentPage > 1;
