@@ -29,8 +29,8 @@ var paginate = Vue.extend({
     methods: {
         turn: function (page) {
             if(this.urlSync) {
-                var params = this.queryParams(),
-                    url = window.location.href,
+                var url = window.location.href,
+                    params = this.queryParams(url),
                     state = {'page': page};
                 if (!this.popStateListening) {
                     var that = this;
@@ -61,12 +61,12 @@ var paginate = Vue.extend({
         isActive: function (n) {
             return this.currentPage == n;
         },
-        queryParams: function() {
-            var vars = [], hash, index = window.location.href.indexOf('?');
+        queryParams: function(url) {
+            var vars = [], hash, index = url.indexOf('?');
             if(index < 0) {
                 return [];
             } else {
-                var hashes = window.location.href.slice(index + 1).split('&');
+                var hashes = url.slice(index + 1).split('&');
                 for (var i = 0; i < hashes.length; i++) {
                     hash = hashes[i].split('=');
                     vars.push(hash[0]);
